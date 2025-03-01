@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Hacker News Digest - {{ timestamp }}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f6f6ef;
+        }
+        .article {
+            background: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ff6600;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        .metadata {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        .summary {
+            margin: 15px 0;
+        }
+        .tags {
+            margin: 15px 0;
+        }
+        .tag {
+            background: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 3px;
+            margin-right: 5px;
+            font-size: 0.9em;
+        }
+        .links {
+            margin: 15px 0;
+        }
+        a {
+            color: #2e7eb9;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hacker News Digest</h1>
+    <p class="metadata">Generated on {{ timestamp }}</p>
+
+    {% for article in articles %}
+    <div class="article">
+        <h2><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></h2>
+        <div class="metadata">
+            Posted by {{ article.by }} | Score: {{ article.score }}
+            {% if article.created_at %}
+            | {{ article.created_at }}
+            {% endif %}
+        </div>
+
+        {% if article.summary %}
+        <div class="summary">
+            <h3>Summary</h3>
+            {{ article.summary }}
+        </div>
+        {% endif %}
+
+        {% if article.tags %}
+        <div class="tags">
+            <h3>Tags</h3>
+            {% for tag in article.tags %}
+            <span class="tag">{{ tag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if article.extracted_links %}
+        <div class="links">
+            <h3>Related Links</h3>
+            <ul>
+                {% for link in article.extracted_links[:3] %}
+                <li><a href="{{ link }}" target="_blank">{{ link }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if article.comments %}
+        <div class="comments">
+            <h3>Top Comments</h3>
+            <ul>
+                {% for comment in article.comments %}
+                <li>{{ comment }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</body>
+</html>

@@ -1,0 +1,29 @@
+source:
+  type: hackernews
+  args: {}  # No additional args needed
+
+transformers:
+  - type: content_fetcher
+    args: {}
+  - type: summarizer
+    args: {}
+  - type: comment_summarizer
+    args: {}
+  - type: content_tagger
+    args: {}
+
+formatter:
+  type: html  # or markdown
+  args:
+    template_path: templates/html/article.html  # or templates/markdown/article.md
+
+destination:
+  type: email  # or telegram
+  args:
+    smtp_host: ${SMTP_HOST}
+    smtp_port: 587
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    from_email: ${FROM_EMAIL}
+    to_email: ${TO_EMAIL}
+    subject_template: "Tech News: {title}"

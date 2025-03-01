@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Hacker News Digest - {{ timestamp }}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f6f6ef;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .tag-filter {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .filter-tag {
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+        }
+        .filter-tag:hover {
+            background: #e0e0e0;
+        }
+        .filter-tag.active {
+            background: #ff6600;
+            color: white;
+        }
+        .article {
+            background: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .article.hidden {
+            display: none;
+        }
+        h1 {
+            color: #ff6600;
+            margin: 0;
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        .metadata {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        .summary {
+            margin: 15px 0;
+        }
+        .tags {
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .tag {
+            background: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        .links {
+            margin: 15px 0;
+        }
+        a {
+            color: #2e7eb9;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .stats {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .search-box {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>Hacker News Digest</h1>
+            <p class="metadata">Generated on {{ timestamp }}</p>
+        </div>
+        <div class="stats">
+            <span id="visible-count">0</span> of <span id="total-count">0</span> stories shown
+        </div>
+    </div>
+
+    <div class="tag-filter">
+        <input type="text" class="search-box" id="tag-search" placeholder="Search tags...">
+        <div class="filter-tags" id="filter-tags">
+            <!-- Tags will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <div id="articles">
+        {% for article in articles %}
+        <div class="article" data-tags="{{ article.tags|join(',') }}">
+            <h2><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></h2>
+            <div class="metadata">
+                Posted by {{ article.by }} | Score: {{ article.score }}
+                {% if article.created_at %}
+                | {{ article.created_at }}
+                {% endif %}
+            </div>
+
+            {% if article.summary %}
+            <div class="summary">
+                <h3>Summary</h3>
+                {{ article.summary }}
+            </div>
+            {% endif %}
+
+            {% if article.tags %}
+            <div class="tags">
+                {% for tag in article.tags %}
+                <span class="tag">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if article.extracted_links %}
+            <div class="links">
+                <h3>Related Links</h3>
+                <ul>
+                    {% for link in article.extracted_links[:3] %}
+                    <li><a href="{{ link }}" target="_blank">{{ link }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if article.comments %}
+            <div class="comments">
+                <h3>Top Comments</h3>
+                <ul>
+                    {% for comment in article.comments %}
+                    <li>{{ comment }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // Initialize tag filtering system
+        document.addEventListener('DOMContentLoaded', function() {
+            // Collect all unique tags
+            const articles = document.querySelectorAll('.article');
+            const tags = new Set();
+            articles.forEach(article => {
+                const articleTags = article.dataset.tags.split(',').filter(t => t);
+                articleTags.forEach(tag => tags.add(tag));
+            });
+
+            // Create tag filter buttons
+            const filterTags = document.getElementById('filter-tags');
+            const sortedTags = Array.from(tags).sort();
+            sortedTags.forEach(tag => {
+                const button = document.createElement('span');
+                button.className = 'filter-tag';
+                button.textContent = tag;
+                button.onclick = () => toggleTag(button);
+                filterTags.appendChild(button);
+            });
+
+            // Initialize counters
+            updateCounters();
+
+            // Initialize search
+            const searchBox = document.getElementById('tag-search');
+            searchBox.addEventListener('input', filterTags);
+        });
+
+        // Track active filters
+        const activeFilters = new Set();
+
+        function toggleTag(button) {
+            button.classList.toggle('active');
+            const tag = button.textContent;
+            
+            if (activeFilters.has(tag)) {
+                activeFilters.delete(tag);
+            } else {
+                activeFilters.add(tag);
+            }
+            
+            filterArticles();
+        }
+
+        function filterArticles() {
+            const articles = document.querySelectorAll('.article');
+            
+            articles.forEach(article => {
+                const articleTags = article.dataset.tags.split(',').filter(t => t);
+                
+                if (activeFilters.size === 0) {
+                    article.classList.remove('hidden');
+                } else {
+                    const hasAllTags = Array.from(activeFilters).every(tag => 
+                        articleTags.includes(tag)
+                    );
+                    article.classList.toggle('hidden', !hasAllTags);
+                }
+            });
+
+            updateCounters();
+        }
+
+        function filterTags() {
+            const searchText = document.getElementById('tag-search').value.toLowerCase();
+            const tagButtons = document.querySelectorAll('.filter-tag');
+            
+            tagButtons.forEach(button => {
+                const tag = button.textContent.toLowerCase();
+                button.style.display = tag.includes(searchText) ? '' : 'none';
+            });
+        }
+
+        function updateCounters() {
+            const total = document.querySelectorAll('.article').length;
+            const visible = document.querySelectorAll('.article:not(.hidden)').length;
+            
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('visible-count').textContent = visible;
+        }
+    </script>
+</body>
+</html>

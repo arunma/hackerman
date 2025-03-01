@@ -1,0 +1,13 @@
+beautifulsoup4==4.13.3
+elasticsearch==8.17.1
+elasticsearch-dsl==8.17.1
+hn-sdk==0.1.1
+langchain==0.3.19
+langchain_community==0.3.18
+langchain-openai==0.3.7
+langsmith==0.3.11
+openai==1.65.1
+pydantic==2.10.6
+python-dotenv==1.0.1
+requests~=2.31.0
+Jinja2==3.1.5

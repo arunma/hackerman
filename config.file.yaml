@@ -1,0 +1,23 @@
+source:
+  type: hackernews
+  args: {}  # No additional args needed
+
+transformers:
+  - type: content_fetcher
+    args: {}
+  - type: summarizer
+    args: {}
+  - type: comment_summarizer
+    args: {}
+  - type: content_tagger
+    args: {}
+
+formatter:
+  type: html
+  args:
+    template_path: templates/html/digest.html
+
+destination:
+  type: file
+  args:
+    output_dir: output/articles

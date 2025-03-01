@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .tag {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin: 2px;
+        }
+        .score {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .comment {
+            border-left: 3px solid #ddd;
+            padding-left: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    
+    <div class="summary">
+        {{ summary }}
+    </div>
+
+    <h2>Tags</h2>
+    <div class="tags">
+        {% for tag in tags %}
+        <span class="tag">
+            {{ tag.name }} <span class="score">({{ "%.2f"|format(tag.score) }})</span>
+        </span>
+        {% endfor %}
+    </div>
+
+    <h2>Links</h2>
+    <ul>
+        {% for link in links[:3] %}
+        <li><a href="{{ link }}" target="_blank">{{ link }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <h2>Comments</h2>
+    {% for comment in comment_summaries %}
+    <div class="comment">
+        {{ comment }}
+    </div>
+    {% endfor %}
+
+    <footer>
+        <small>Article indexed at: {{ indexed_at }}</small>
+    </footer>
+</body>
+</html>

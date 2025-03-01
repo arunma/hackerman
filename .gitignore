@@ -169,3 +169,14 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# VS Code
+.vscode/
+*.code-workspace
+.history/
+
+# Windsurf
+.windsurf/
+.windsurf-cache/
+.idea/
+output/
